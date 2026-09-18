@@ -103,8 +103,10 @@ public class ReservationController {
 
     // 스터디원 전용
     @GetMapping("/{taskId}")
-    public ResponseEntity<ReservationResponseDTO> getLiveTask(@PathVariable Long taskId) {
-        ReservationResponseDTO response = reservationService.getTaskWithValidation(taskId);
+    public ResponseEntity<ReservationResponseDTO> getLiveTask(@PathVariable Long taskId, HttpSession session) {
+        Long userId = SessionUtil.getLoginUserId(session);
+        if (userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        ReservationResponseDTO response = reservationService.getTaskWithValidation(taskId, userId);
         return ResponseEntity.ok(response);
     }
 

@@ -19,7 +19,6 @@ public class GeminiService {
     private final String URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=";
 
     public AiAssignmentResponseDTO generateAssignment(AiParameterDTO dto) {
-        System.out.println("API KEY: " + apiKey);
         String prompt = String.format(
                 "너는 과제 출제 전문가야. 주제: %s, 난이도: %s, 요청: %s\n" +
                         "다음 형식의 JSON으로만 응답해줘.\n" +

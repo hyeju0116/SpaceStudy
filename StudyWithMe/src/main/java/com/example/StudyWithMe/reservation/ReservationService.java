@@ -76,7 +76,8 @@ public class ReservationService {
     /**
      * 과제 상세 조회 (시간 검증 포함) - Redis 우선 조회로 아키텍처 개선
      */
-    public ReservationResponseDTO getTaskWithValidation(Long taskId) {
+    public ReservationResponseDTO getTaskWithValidation(Long taskId, Long userId) {
+        requireMember(taskId, userId);
         String cacheKey = CACHE_KEY_PREFIX + taskId;
 
         // 1. Redis 캐시에서 먼저 조회
@@ -103,6 +104,7 @@ public class ReservationService {
      */
     @Transactional
     public void submitTask(Long taskId, Long userId, ReservationSubmitRequestDTO request) {
+        requireMember(taskId, userId);
         String cacheKey = CACHE_KEY_PREFIX + taskId;
 
         // 제출 시 시간 검증도 Redis 캐시를 활용해 RDB Read 부하 최소화
@@ -124,5 +126,12 @@ public class ReservationService {
 
         ReservationSubmission submission = new ReservationSubmission(reservation, member, request.getAnswer());
         submissionRepository.save(submission);
+    }
+    private void requireMember(Long taskId, Long userId) {
+        Reservation reservation = reservationRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("과제를 찾을 수 없습니다."));
+        if (userId == null || !studyGroupRepository.existsMemberInStudy(reservation.getStudyGroup().getId(), userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("해당 스터디의 멤버가 아닙니다.");
+        }
     }
 }

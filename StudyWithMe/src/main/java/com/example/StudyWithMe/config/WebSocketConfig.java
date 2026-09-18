@@ -17,7 +17,14 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@lombok.RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    private final StompHandler stompHandler;
+
+    @Override
+    public void configureClientInboundChannel(org.springframework.messaging.simp.config.ChannelRegistration registration) {
+        registration.interceptors(stompHandler);
+    }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -32,9 +39,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 클라이언트가 소켓에 연결할 엔드포인트
         registry.addEndpoint("/ws-stomp")
-                .setAllowedOrigins("http://localhost:5173")
-                .setAllowedOrigins("http://34.22.71.200")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOrigins("http://localhost:5173", "http://localhost:9090",
+                        "http://34.22.71.200", "http://34.22.71.200:9090")
                 .withSockJS()
                 .setInterceptors(httpSessionHandshakeInterceptor());
     }
