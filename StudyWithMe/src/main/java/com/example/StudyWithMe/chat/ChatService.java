@@ -18,6 +18,7 @@ public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final StudyGroupRepository studyGroupRepository;
+    private final com.example.StudyWithMe.member.MemberRepository memberRepository;
 
     // 메시지 저장
     @Transactional
@@ -34,7 +35,8 @@ public class ChatService {
 
             ChatMessage chatMessage = ChatMessage.builder()
                     .studyId(studyId)
-                    .sender(sender)
+                    .sender(memberRepository.findById(currentMemberId)
+                            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")).getName())
                     .message(content)
                     .build();
 
